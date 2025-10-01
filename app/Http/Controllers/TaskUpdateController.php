@@ -9,8 +9,16 @@ use Illuminate\Http\Request;
 
 class TaskUpdateController extends Controller
 {
-    public function __invoke(UpdateTaskRequest $request, Task $task): JsonResponse
+    public function __invoke(UpdateTaskRequest $request, $id): JsonResponse
     {
+       $task = Task::find($id);
+
+       if(!$task){
+            return response()->json([
+                'message' => 'not found'
+            ], 404);
+       }
+
        $task->update($request->validated());
        
        return response()->json([

@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 
 class UpdateTaskRequest extends FormRequest
 {
@@ -24,7 +27,24 @@ class UpdateTaskRequest extends FormRequest
         return [
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'boolean'
+            'status' => 'sometimes|boolean'
         ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'status.boolean' => 'Поле status должно быть true или false'
+        ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
+        );
     }
 }
